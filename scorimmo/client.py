@@ -10,7 +10,7 @@ import httpx
 class ScorimmoClient:
     """Official Scorimmo API client with automatic JWT token management."""
 
-    def __init__(self, base_url: str, username: str, password: str) -> None:
+    def __init__(self, username: str, password: str, base_url: str = "https://pro.scorimmo.com") -> None:
         self._base_url = base_url.rstrip("/")
         self._username = username
         self._password = password
@@ -132,15 +132,6 @@ class LeadsResource:
                 params.append((f"search[{k}]", v))
         qs = urlencode(params) if params else ""
         return self._client.request("GET", f"/api/stores/{store_id}/leads" + (f"?{qs}" if qs else ""))
-
-    def create(self, payload: dict[str, Any]) -> dict[str, Any]:
-        """Create a new lead."""
-        return self._client.request("POST", "/api/lead", payload)
-
-    def update(self, lead_id: int, payload: dict[str, Any]) -> dict[str, Any]:
-        """Update an existing lead."""
-        return self._client.request("PUT", f"/api/lead/{lead_id}", payload)
-
 
 class ScorimmoApiError(Exception):
     def __init__(self, message: str, status_code: int, api_code: int | None = None) -> None:
