@@ -10,10 +10,11 @@ import httpx
 class ScorimmoClient:
     """Official Scorimmo API client with automatic JWT token management."""
 
-    def __init__(self, username: str, password: str, base_url: str = "https://pro.scorimmo.com") -> None:
+    def __init__(self, username: str, password: str, base_url: str = "https://pro.scorimmo.com", timeout: float = 30.0) -> None:
         self._base_url = base_url.rstrip("/")
         self._username = username
         self._password = password
+        self._timeout = timeout
         self._token: str | None = None
         self._token_expires_at: datetime | None = None
         self.leads = LeadsResource(self)
@@ -27,6 +28,7 @@ class ScorimmoClient:
             f"{self._base_url}/api/login_check",
             json={"username": self._username, "password": self._password},
             headers={"Content-Type": "application/json"},
+            timeout=self._timeout,
         )
 
         if response.status_code != 200:
@@ -66,6 +68,7 @@ class ScorimmoClient:
                 "Content-Type": "application/json",
                 "Accept": "application/json",
             },
+            timeout=self._timeout,
         )
         if response.status_code < 200 or response.status_code >= 300:
             data = response.json() if response.content else {}
