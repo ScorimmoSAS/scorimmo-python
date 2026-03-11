@@ -5,3 +5,7 @@ dist/
 build/
 .venv/
 .env
+.idea/
+.DS_Store
+.pytest_cache/
+.coverage
