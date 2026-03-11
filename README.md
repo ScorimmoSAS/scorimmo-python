@@ -1,6 +1,6 @@
 # scorimmo
 
-SDK officiel Python pour la plateforme CRM immobilier [Scorimmo](https://pro.scorimmo.com).
+SDK officiel Python pour la plateforme [Scorimmo](https://pro.scorimmo.com).
 
 Facilite l'intégration des leads Scorimmo dans votre CRM en deux modes :
 - **Client API** — récupérez vos leads avec gestion automatique du token JWT
@@ -40,7 +40,7 @@ pip install scorimmo[flask]
 
 ## Identifiants API
 
-Les identifiants (`username` / `password`) sont les mêmes que ceux utilisés pour se connecter à [pro.scorimmo.com](https://pro.scorimmo.com).
+Les identifiants (`username` / `password`) sont ceux fournis par Scorimmo.
 
 Pour le webhook, le secret (`SCORIMMO_WEBHOOK_SECRET`) est une valeur que vous choisissez librement — communiquez-la ensuite à Scorimmo lors de la configuration (voir [Configurer le webhook chez Scorimmo](#configurer-le-webhook-chez-scorimmo)).
 
@@ -242,8 +242,8 @@ Retourne une page de leads.
 | `search` | `dict` | Filtres par champ (voir ci-dessous) |
 | `orderby` | `str` | Champ de tri : `created_at`, `updated_at`, `status`, etc. |
 | `order` | `str` | `"asc"` ou `"desc"` |
-| `limit` | `int` | Nombre de résultats par page (défaut : 20) |
-| `page` | `int` | Numéro de page (défaut : 1) |
+| `limit` | `int` | Nombre de résultats par page (défaut API : 20) |
+| `page` | `int` | Numéro de page (défaut API : 1) |
 
 **Filtres `search` disponibles :**
 
