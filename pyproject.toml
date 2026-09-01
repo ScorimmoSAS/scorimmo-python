@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scorimmo"
-version = "0.2.0"
+version = "1.0.0"
 description = "Official Scorimmo SDK for Python — API v2 client & webhook handler"
 readme = "README.md"
 license = { text = "MIT" }
