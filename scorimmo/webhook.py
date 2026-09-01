@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hmac
 import json
+import logging
 from collections.abc import Callable, Mapping
 from hashlib import sha256
 from typing import Any
@@ -78,11 +79,22 @@ class ScorimmoWebhook:
         self,
         signature_secret: str | None = None,
         signature_header: str = DEFAULT_SIGNATURE_HEADER,
+        logger: logging.Logger | None = None,
     ) -> None:
+        """
+        :param signature_secret: Secret partagé HMAC-SHA256. ``None`` (ou chaîne vide) désactive
+                                 la vérification côté SDK — l'authentification doit alors être
+                                 assurée en amont (Basic auth URL, IP whitelist, mTLS…).
+        :param signature_header: Nom du header portant la signature (défaut ``X-Signature-256``).
+        :param logger:           Logger optionnel utilisé pour tracer les événements qui n'ont
+                                 ni handler nommé ni handler ``'unknown'`` lors du dispatch.
+                                 ``None`` (défaut) = silent-drop, comportement historique.
+        """
         # Un secret vide équivaut à ne pas vérifier — normalise en None pour éviter un
         # compare_digest silencieusement toujours faux si l'env var n'est pas renseignée.
         self._signature_secret: str | None = signature_secret if signature_secret else None
         self._signature_header: str = signature_header.lower()
+        self._logger: logging.Logger | None = logger
 
     def parse(
         self,
@@ -132,11 +144,17 @@ class ScorimmoWebhook:
         ``new_reminder``, ``closure_lead``. La clé spéciale ``'unknown'`` capture tous les
         événements non reconnus (utile pour recevoir les événements futurs émis en
         ``webhook.<name>``).
+
+        Si aucun handler nommé ni handler ``'unknown'`` n'est enregistré, l'événement est
+        silencieusement ignoré — sauf si un ``logger`` a été passé au constructeur, auquel
+        cas un warning est émis pour tracer le drop. Aucune exception n'est levée.
         """
         event_name = event.get("event", "unknown")
         handler = handlers.get(event_name) or handlers.get("unknown")
         if handler is not None:
             handler(event)
+        elif self._logger is not None:
+            self._logger.warning("scorimmo webhook: no handler for event %s", event_name)
 
     def handle(
         self,

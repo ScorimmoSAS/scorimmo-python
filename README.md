@@ -256,10 +256,28 @@ Une fois votre endpoint déployé, transmettez les informations suivantes à vot
 URL du webhook : https://votre-app.com/webhook/scorimmo
 
 Authentification (au choix, fortement recommandé) :
-  Option A - Signature HMAC-SHA256
-    Header : X-Signature-256   (nom personnalisable)
-    Valeur : sha256=<hex(hmac_sha256(rawBody, secret))>
-    Secret : [votre SCORIMMO_WEBHOOK_SIGNATURE_SECRET]
+  Option A - Signature HMAC-SHA256 (recommandé)
+    Le back-office Scorimmo n'a pas de champ « secret » dédié : la signature
+    se configure via un header custom, en convention in-place.
+
+    Dans l'écran de configuration du webhook, ajoutez un header custom :
+      Nom    : X-Signature-256
+               (nom libre côté back, MAIS il doit correspondre à
+                `signature_header` côté SDK — valeur par défaut du SDK :
+                X-Signature-256. Si vous choisissez un autre nom, pensez à
+                le passer via `signature_header=` à `ScorimmoWebhook`.)
+      Valeur : sha256=<votre-secret>
+               (le préfixe `sha256=` est obligatoire — c'est ce qui déclenche
+                la convention. Le back détecte le préfixe, extrait la partie
+                après `sha256=` comme secret HMAC, puis remplace la valeur
+                envoyée par :
+                   sha256=<hex(hmac_sha256(rawBody, <votre-secret>))>
+                avant l'appel HTTP.)
+
+    Secret côté SDK :
+      La chaîne que vous avez collée après `sha256=` ci-dessus doit être
+      strictement identique à `SCORIMMO_WEBHOOK_SIGNATURE_SECRET`
+      (paramètre `signature_secret` de `ScorimmoWebhook`).
 
   Option B - HTTP Basic auth via URL
     URL : https://user:pass@votre-app.com/webhook/scorimmo

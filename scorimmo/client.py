@@ -41,7 +41,7 @@ class ScorimmoClient:
       * ``client.origins``           — Référentiel des origines
       * ``client.additional_fields`` — Champs additionnels par agence/intérêt
       * ``client.request_fields``    — Champs de demande par agence/intérêt
-      * ``client.form``              — Soumission de formulaires publics (ROLE_API_FORM_WRITE)
+      * ``client.form``              — Soumission de formulaires publics (Scope: ROLE_API_FORM_WRITE)
       * ``client.web_callbacks``     — Déclenchement d'appels sortants (auth par clé WCB)
     """
 
@@ -437,6 +437,8 @@ class LeadsResource(_AbstractResource):
         """
         Récupère un lead unique par son identifiant.
 
+        Scope: ROLE_API_LEAD_READ (lead:read)
+
         :param include: Relations à charger : ``customer``, ``seller``, ``appointments``,
                         ``reminders``, ``requests``, ``comments``.
         """
@@ -448,6 +450,8 @@ class LeadsResource(_AbstractResource):
     def list(self, **query: Any) -> dict[str, Any]:
         """
         Liste les leads avec filtrage, tri et pagination.
+
+        Scope: ROLE_API_LEAD_READ (lead:read)
 
         Filtres acceptés (voir README) : ``store_id``, ``seller_id``, ``status``,
         ``substatus``, ``interest``, ``origin``, ``contact_type``, ``purpose``,
@@ -461,6 +465,8 @@ class LeadsResource(_AbstractResource):
     def update(self, resource_id: int, data: Mapping[str, Any]) -> dict[str, Any]:
         """
         Mise à jour partielle d'un lead (seuls les champs transmis sont modifiés).
+
+        Scope: ROLE_API_LEAD_WRITE (lead:write)
 
         Champs modifiables via PATCH : ``seller_id``, ``origin``, ``external_lead_id``,
         ``external_customer_id``, ``additional_fields`` (remplacement complet du bloc).
@@ -490,6 +496,8 @@ class LeadsResource(_AbstractResource):
         :param include:     Relations à charger (ex : ``["customer", "seller"]``).
         :param on_progress: Callback après chaque page :
                             ``fn(page, count, total, meta)``.
+
+        Scope: ROLE_API_LEAD_READ (lead:read)
 
         :raises ValueError: Si ``date``, ``field`` ou ``max_pages`` ont une valeur invalide.
         """
@@ -550,7 +558,8 @@ class AppointmentsResource(_AbstractResource):
     Ressource Appointments — rendez-vous rattachés aux leads.
 
     Endpoints couverts : GET /api/v2/appointments, GET /api/v2/appointments/{id}.
-    Scope requis : ``lead:read``.
+
+    Scope: ROLE_API_LEAD_READ (lead:read)
     """
 
     base_path = "/api/v2/appointments"
@@ -562,7 +571,8 @@ class CommentsResource(_AbstractResource):
     Ressource Comments — commentaires et notes rattachés aux leads (notes système exclues).
 
     Endpoints couverts : GET /api/v2/comments, GET /api/v2/comments/{id}.
-    Scope requis : ``lead:read``.
+
+    Scope: ROLE_API_LEAD_READ (lead:read)
     """
 
     base_path = "/api/v2/comments"
@@ -574,7 +584,8 @@ class RemindersResource(_AbstractResource):
     Ressource Reminders — rappels / relances rattachés aux leads.
 
     Endpoints couverts : GET /api/v2/reminders, GET /api/v2/reminders/{id}.
-    Scope requis : ``lead:read``.
+
+    Scope: ROLE_API_LEAD_READ (lead:read)
     """
 
     base_path = "/api/v2/reminders"
@@ -586,7 +597,8 @@ class RequestsResource(_AbstractResource):
     Ressource Requests — biens recherchés ou proposés rattachés aux leads.
 
     Endpoints couverts : GET /api/v2/requests, GET /api/v2/requests/{id}.
-    Scope requis : ``lead:read``.
+
+    Scope: ROLE_API_LEAD_READ (lead:read)
     """
 
     base_path = "/api/v2/requests"
@@ -600,7 +612,8 @@ class StoresResource(_AbstractResource):
     Ressource Stores — points de vente accessibles au compte API.
 
     Endpoints couverts : GET /api/v2/stores, GET /api/v2/stores/{id}.
-    Scope requis : ``ref:read``.
+
+    Scope: ROLE_API_REF_READ (ref:read)
     """
 
     base_path = "/api/v2/stores"
@@ -612,7 +625,8 @@ class UsersResource(_AbstractResource):
     Ressource Users — conseillers et managers des points de vente accessibles.
 
     Endpoints couverts : GET /api/v2/users, GET /api/v2/users/{id}.
-    Scope requis : ``ref:read``.
+
+    Scope: ROLE_API_REF_READ (ref:read)
     """
 
     base_path = "/api/v2/users"
@@ -622,6 +636,8 @@ class UsersResource(_AbstractResource):
     def list(self, **query: Any) -> dict[str, Any]:
         """
         Liste les utilisateurs avec filtrage optionnel.
+
+        Scope: ROLE_API_REF_READ (ref:read)
 
         Filtres : ``store_id``, ``interest``, ``role`` (``admin`` / ``manager`` / ``agent``
         / ``virtual``).
@@ -636,7 +652,8 @@ class CustomersResource(_AbstractResource):
     Ressource Customers — contacts/prospects rattachés aux leads.
 
     Endpoints couverts : GET /api/v2/customers, GET /api/v2/customers/{id}.
-    Scope requis : ``ref:read``.
+
+    Scope: ROLE_API_REF_READ (ref:read)
 
     Le filtre ``phone`` s'applique en OR sur les colonnes ``phone`` et ``other_phone``
     côté API.
@@ -651,7 +668,8 @@ class StatusResource(_AbstractResource):
     Ressource Status — référentiel des statuts et sous-statuts disponibles.
 
     Endpoints couverts : GET /api/v2/status.
-    Scope requis : ``ref:read``.
+
+    Scope: ROLE_API_REF_READ (ref:read)
 
     Retourne la liste paginée des statuts avec leurs sous-statuts associés. Exemple ::
 
@@ -671,7 +689,8 @@ class OriginsResource(_AbstractResource):
     Ressource Origins — origines configurées sur le compte.
 
     Endpoints couverts : GET /api/v2/origins.
-    Scope requis : ``ref:read``.
+
+    Scope: ROLE_API_REF_READ (ref:read)
 
     Utiliser le champ ``label`` retourné comme valeur du filtre ``origin`` dans
     :meth:`LeadsResource.list` et comme valeur du paramètre ``origin`` de POST /api/v2/form.
@@ -684,6 +703,8 @@ class OriginsResource(_AbstractResource):
     def list(self, **query: Any) -> dict[str, Any]:
         """
         Liste les origines avec filtrage optionnel.
+
+        Scope: ROLE_API_REF_READ (ref:read)
 
         Filtres : ``store_id``, ``has_tracking`` (bool → ``"true"``/``"false"``),
         ``tracking_channel`` (``phone`` / ``email``), ``include=tracking`` pour inclure
@@ -699,7 +720,8 @@ class AdditionalFieldsResource(_AbstractResource):
     Ressource Additional Fields — champs additionnels configurés par agence/intérêt.
 
     Endpoints couverts : GET /api/v2/additional_fields.
-    Scope requis : ``ref:read``.
+
+    Scope: ROLE_API_REF_READ (ref:read)
     """
 
     base_path = "/api/v2/additional_fields"
@@ -710,7 +732,8 @@ class RequestFieldsResource(_AbstractResource):
     Ressource Request Fields — champs de demande configurés par agence/intérêt.
 
     Endpoints couverts : GET /api/v2/requests/fields.
-    Scope requis : ``ref:read``.
+
+    Scope: ROLE_API_REF_READ (ref:read)
     """
 
     base_path = "/api/v2/requests/fields"
@@ -726,7 +749,7 @@ class FormResource(_AbstractResource):
     (landing pages, formulaires de contact, portails partenaires). Il crée un lead dans le
     CRM après notification email au(x) destinataire(s) indiqué(s).
 
-    Scope requis : ``ROLE_API_FORM_WRITE`` (à demander séparément de ``lead:write``).
+    Scope: ROLE_API_FORM_WRITE (aucun scope JWT court — à demander séparément de ``lead:write``).
     """
 
     base_path = "/api/v2/form"
@@ -735,6 +758,8 @@ class FormResource(_AbstractResource):
     def submit(self, data: Mapping[str, Any]) -> dict[str, Any]:
         """
         Soumet un formulaire public. Crée un lead et envoie l'email au(x) destinataire(s).
+
+        Scope: ROLE_API_FORM_WRITE
 
         Champs requis : ``store_id``, ``libelle_id``, ``to_email``, ``origin``, ``message``.
         Champs optionnels : ``subject``, ``customer`` (civility ``M.``/``Mme``, first_name,
@@ -757,6 +782,8 @@ class WebCallbacksResource(_AbstractResource):
     Ressource WebCallbacks — déclenche un appel sortant via l'API webcallback
     (POST /api/v2/webcallbacks).
 
+    Scope: aucun (clé WCB en body)
+
     .. warning::
         Cet endpoint n'utilise PAS l'authentification Bearer classique. Il s'authentifie
         avec une clé personnelle « WebCallback » (paramètre ``key`` du body). Cette clé est
@@ -768,6 +795,8 @@ class WebCallbacksResource(_AbstractResource):
     def launch(self, key: str, number_to_call: str) -> dict[str, Any]:
         """
         Déclenche un appel sortant vers un numéro depuis le point de vente rattaché à la clé WCB.
+
+        Scope: aucun (clé WCB en body)
 
         :param key:            Clé personnelle WebCallback (fournie par Scorimmo, distincte
                                du couple email/password).
